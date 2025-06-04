@@ -37,9 +37,16 @@ pull jdk container using following command "docker pull chainguard/jdk"
 check image using "docker images"
 ---
 Run a Container Using the Volume
-docker run -d -P --name backend-server -v udkms-data:/app/data chainguard/jdk:latest sh
+docker run -d -P --name backend-server -v backend-data:/app/data jayeshhyalij/backend:v1 sh
 Verify the Volume is Attached
 docker inspect udkms-backend | grep Mounts -A 10
 
 Check Volume Data
 docker run --rm -it -v udkms_data:/app/data alpine sh
+
+
+
+docker run -d \
+  --name container-name \
+  -v volume-name:/container/path \
+  image-name
