@@ -1,0 +1,45 @@
+create ec2 instane amzon linux
+create mkdir backend-host
+cd backend-host
+create vim docker.sh file with the following content
+"# Step 1: Clean any broken or old Docker repo
+sudo rm -f /etc/yum.repos.d/docker*.repo
+
+# Step 2: Refresh the package metadata
+sudo dnf clean all
+sudo dnf makecache
+sudo dnf update -y
+
+# Step 3: Install Docker from the Amazon Linux repo
+sudo dnf install -y docker
+
+# Step 4: Start and enable Docker service
+sudo systemctl enable --now docker
+
+# Step 5: Verify Docker is installed
+docker --version
+"
+run this file using the following command "bash docker.sh" in the terminal
+create volume using "docker volume create udkms-data"
+docker volume ls
+cp project data to the volume
+make it .jar
+    sudo yum install maven -y   # install maven if not installed
+    mvn clean package
+
+    mvn clean package
+
+    mvn clean package -DskipTests
+
+write dockerfile
+--
+pull jdk container using following command "docker pull chainguard/jdk"
+check image using "docker images"
+---
+Run a Container Using the Volume
+docker run -d -P --name backend-server -v udkms-data:/app/data chainguard/jdk:latest sh
+Verify the Volume is Attached
+docker inspect udkms-backend | grep Mounts -A 10
+
+Check Volume Data
+docker run --rm -it -v udkms_data:/app/data alpine sh
