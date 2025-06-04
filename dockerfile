@@ -1,10 +1,13 @@
-# Use official Maven image with OpenJDK 17
-FROM maven:3.8.6-openjdk-17
+# Use official Maven image with OpenJDK 21
+FROM maven:3.9.6-eclipse-temurin-21
 
 # Set working directory inside container
 WORKDIR /target
 
 # The backend project files will be mounted here at runtime
+
+# Install unzip required for sdkman
+RUN apt-get update && apt-get install -y unzip curl && rm -rf /var/lib/apt/lists/*
 
 # Install Spring Boot CLI (optional, if needed)
 RUN curl -s https://get.sdkman.io | bash && \
@@ -14,5 +17,5 @@ RUN curl -s https://get.sdkman.io | bash && \
 EXPOSE 8080
 
 # Command to run the Spring Boot application
-# Assumes the user will mount the project at /app and run this command
+# Assumes the user will mount the project at /target and run this command
 CMD ["mvn", "spring-boot:run"]
