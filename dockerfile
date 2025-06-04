@@ -6,8 +6,8 @@ WORKDIR /target
 
 # The backend project files will be mounted here at runtime
 
-# Install unzip required for sdkman
-RUN apt-get update && apt-get install -y unzip curl && rm -rf /var/lib/apt/lists/*
+# Install unzip and zip required for sdkman
+RUN apt-get update && apt-get install -y unzip zip curl && rm -rf /var/lib/apt/lists/*
 
 # Install Spring Boot CLI (optional, if needed)
 RUN curl -s https://get.sdkman.io | bash && \
