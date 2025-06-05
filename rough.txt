@@ -1,4 +1,6 @@
-create ec2 instane amzon linux
+machine - 2 for backend-server
+create ec2 instane i use amzon linux free tier
+1. install docker
 create mkdir backend-host
 cd backend-host
 create vim docker.sh file with the following content
@@ -20,7 +22,8 @@ sudo systemctl enable --now docker
 docker --version
 "
 run this file using the following command "bash docker.sh" in the terminal
-create volume using "docker volume create udkms-data"
+
+2. create volume using "docker volume create backend-data"
 docker volume ls
 cp project data to the volume
 make it .jar
@@ -31,22 +34,17 @@ make it .jar
 
     mvn clean package -DskipTests
 
-write dockerfile
-cp dockerfile to first created dir
-build image "docker build -t jayeshhyalij/backend:v1 ."
+3. write dockerfile
+mv dockerfile to our created dir
+
+4. build image "docker build -t jayeshhyalij/backend:v1 ."
 check image using "docker images"
----
-Run a Container Using the Volume
-docker run -d -P --name backend-server -v backend-data:/app/data jayeshhyalij/backend:v1 sh
-Verify the Volume is Attached
-docker inspect udkms-backend | grep Mounts -A 10
 
-Check Volume Data
-docker run --rm -it -v udkms_data:/app/data alpine sh
+5. Run a Container Using the Volume
+docker run -d -P --name backend-server -v /var/lib/docker/volumes/backend-data:/app/data jayeshhyalij/backend:v1 sh
 
+check logs
+  docker logs container-id
 
-
-docker run -d \
-  --name container-name \
-  -v volume-name:/container/path \
-  image-name
+6. push container to repo
+docker tag jayeshhyalij/backend:v1 jayeshhyalij/backend:v1

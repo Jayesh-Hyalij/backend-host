@@ -1,15 +1,11 @@
-# Use official OpenJDK 17 runtime image
-FROM eclipse-temurin:17-jdk
+# Use Maven 3 with OpenJDK 17 base image
+FROM maven:3.8.6-openjdk-17
 
-# Set working directory inside container
+# Declare /app as a volume mount point
+VOLUME ["/app"]
+
+# Set working directory
 WORKDIR /app
 
-# The backend project files will be mounted here at runtime
-
-# Expose port 8080 (default for Spring Boot)
-EXPOSE 8080
-
-# Command to run the Spring Boot application jar
-# Assumes the jar file is present in /app/target/
-CMD ["sh", "-c", "java -jar /app/target/*.jar"]
-ENTRYPOINT ["sh", "-c", "java -jar /app/target/*.jar"]
+# Build the Spring Boot application
+ENTRYPOINT ["sh", "-c", "mvn clean package -DskipTests && java -jar /app/target/*.jar"]
