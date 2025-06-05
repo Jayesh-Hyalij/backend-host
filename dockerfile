@@ -1,5 +1,5 @@
 # Use Maven 3 with OpenJDK 17 base image
-FROM maven:3.8.6-openjdk-17
+FROM maven:latest
 
 # Declare /app as a volume mount point
 VOLUME ["/app"]
