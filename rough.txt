@@ -32,8 +32,8 @@ make it .jar
     mvn clean package -DskipTests
 
 write dockerfile
---
-pull jdk container using following command "docker pull chainguard/jdk"
+cp dockerfile to first created dir
+build image "docker build -t jayeshhyalij/backend:v1 ."
 check image using "docker images"
 ---
 Run a Container Using the Volume

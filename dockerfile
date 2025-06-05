@@ -12,3 +12,4 @@ EXPOSE 8080
 # Command to run the Spring Boot application jar
 # Assumes the jar file is present in /app/target/
 CMD ["sh", "-c", "java -jar /app/target/*.jar"]
+ENTRYPOINT ["sh", "-c", "java -jar /app/target/*.jar"]
