@@ -36,6 +36,184 @@ Each engineer runs their respective container on their machine. The containers c
 
 ---
 
+🚀 **Step-by-Step Tailscale + Docker Swarm Setup** <br>
+
+Here's a step-by-step guide to set up Tailscale for Docker Swarm across machines on different networks (e.g., home, cloud, office) to enable secure container-to-container communication. <br>
+
+🧰 **What You’ll Achieve**
+
+✅ Connect 3 machines over a virtual private network <br>
+✅ Enable Docker Swarm + overlay network to span across networks  <br>
+✅ Allow containers to communicate by name, securely  <br>
+
+🖥️ **Machines Required**  <br>
+Example:
+```ssh
+| Role     | Hostname    | Location | Will Run           |
+| -------- | ----------- | -------- | ------------------ |
+| Manager  |  manager-1  | Home     | Swarm manager      |
+| Worker 1 |  worker-1   | Cloud    | Backend container  |
+| Worker 2 |  worker-2   | Office   | Database container |
+```
+
+
+🚀 **Step-by-Step Tailscale + Docker Swarm Setup**
+
+✅ *Step 1: Install Tailscale on All Machines*  <br>
+
+🔧 Linux (Ubuntu/Debian)
+```ssh
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up
+```
+On first run, it will open a browser for login. Login with Google, GitHub, etc.  <br>
+
+✅ *Step 2: Verify All Hosts Are Connected*
+After login, you’ll see output like:  <br>
+```ssh
+Logged in as you@example.com.
+100.101.102.1   manager-1
+100.101.102.2   worker-1
+100.101.102.3   worker-2
+```
+✅ These are Tailscale IPs (in the 100.x.x.x range). <br>
+
+Test:  <br>
+```ssh
+ping 100.101.102.2   # from manager
+```
+If ping works, you’re securely connected ✅
+
+✅ *Step 3: Initialize Docker Swarm on the Manager Node* <br>
+Use Tailscale IP to advertise the manager:  
+```ssh
+docker swarm init --advertise-addr 100.101.102.1
+```
+
+Copy the join token from the output, e.g.:
+```ssh
+docker swarm join --token SWMTKN-1-abc123 ... 100.101.102.1:2377
+```
+
+✅ *Step 4: Join Worker Nodes to the Swarm*
+
+On each worker node, run the token command:
+```ssh
+docker swarm join --token <token-from-above> 100.101.102.1:2377
+```
+
+To verify: <br>
+```ssh
+docker node ls     # On the manager
+```
+You should see all 3 nodes listed.
+
+✅ *Step 5: Create an Overlay Network for Containers*
+
+On the manager:
+```ssh
+docker network create --driver overlay --attachable my_overlay
+```
+
+✅ *Step 6: Deploy Containers Across Nodes*  <br>
+Example:
+```ssh
+docker service create \
+  --name frontend \
+  --network my_overlay \
+  --replicas 1 \
+  --constraint 'node.hostname == manager-1' \
+  nginx
+
+docker service create \
+  --name backend \
+  --network my_overlay \
+  --replicas 1 \
+  --constraint 'node.hostname == worker-1' \
+  my-backend-image
+
+docker service create \
+  --name db \
+  --network my_overlay \
+  --replicas 1 \
+  --constraint 'node.hostname == worker-2' \
+  mysql
+```
+➡️ All 3 services will now communicate securely using service names (frontend, backend, db).
+
+📦 **Example: Container-to-Container Communication**  <br>
+
+Inside the backend container:
+```ssh
+ping db
+curl db:3306
+```
+
+Inside the frontend container:
+```ssh
+curl backend:5000
+```
+Docker Swarm + Tailscale handles the cross-host routing!
+
+🧠 **Bonus Tips**
+
+```ssh
+| Task               | Command                                                                 |
+| ------------------ | ----------------------------------------------------------------------- |
+| View Tailscale IP  |  tailscale ip -4                                                        |
+| View all nodes     |  tailscale status                                                       |
+| Auto-start on boot |  sudo tailscale up --authkey <key>  *(use auth key for headless setup)* |
+| Revoke devices     | [tailscale.com/admin](https://tailscale.com/admin)                      |
+```
+
+<hr>
+
+OPTIONAL <br>
+
+✅ **Step-by-Step: How Other Hosts Connect to Tailscale** <br>
+
+Once you've installed Tailscale on each host, each one joins the same virtual private network (VPN mesh), using your Tailscale account.
+
+📌 *Example: You have 3 machines*
+```ssh
+| Hostname    | Role          | Tailscale Command   |
+| ----------- | ------------- | ------------------- |
+|  manager-1  | Swarm manager |  sudo tailscale up  |
+|  worker-1   | Swarm worker  |  sudo tailscale up  |
+|  worker-2   | Swarm worker  |  sudo tailscale up  |
+```
+
+🔐 *When you run tailscale up:* 
+
+  - It opens a browser login link (if interactive), or you use an auth key if headless.
+  - You log in using the same Tailscale account (e.g., your Google/GitHub account).
+  - The host receives a Tailscale IP (e.g., 100.101.102.1).
+  - This IP is reachable from all other machines in the Tailscale network.
+
+🧪 **How to Verify All Hosts Are Connected** <br>
+   ✅ Run on any host:
+```ssh
+tailscale status
+```
+
+You’ll see a list like:
+```ssh
+100.101.102.1   manager-1   online
+100.101.102.2   worker-1    online
+100.101.102.3   worker-2    online
+```
+✅ All hosts are connected via Tailscale and can now ping each other securely.
+
+🔄 How Connectivity Works (Behind the Scenes) <br>
+Tailscale uses the WireGuard protocol to build peer-to-peer encrypted tunnels between devices. Even if: <br>
+  - Manager is on home Wi-Fi,
+  - Worker 1 is on AWS,
+  - Worker 2 is on a university network,
+
+➡️ Tailscale finds a way to securely tunnel between them using NAT traversal or fallback relay (DERP servers).
+
+<hr>
+
 ## Notes
 
 - Each container is developed, built, and run independently by different engineers on separate machines.
