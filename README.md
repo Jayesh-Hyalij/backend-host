@@ -160,13 +160,57 @@ Docker Swarm + Tailscale handles the cross-host routing!
 ```ssh
 | Task               | Command                                                                 |
 | ------------------ | ----------------------------------------------------------------------- |
-| View Tailscale IP  | `tailscale ip -4`                                                       |
-| View all nodes     | `tailscale status`                                                      |
-| Auto-start on boot | `sudo tailscale up --authkey <key>` *(use auth key for headless setup)* |
+| View Tailscale IP  |  tailscale ip -4                                                        |
+| View all nodes     |  tailscale status                                                       |
+| Auto-start on boot |  sudo tailscale up --authkey <key>  *(use auth key for headless setup)* |
 | Revoke devices     | [tailscale.com/admin](https://tailscale.com/admin)                      |
 ```
 
 <hr>
+
+OPTIONAL <br>
+
+✅ **Step-by-Step: How Other Hosts Connect to Tailscale** <br>
+
+Once you've installed Tailscale on each host, each one joins the same virtual private network (VPN mesh), using your Tailscale account.
+
+📌 *Example: You have 3 machines*
+```ssh
+| Hostname    | Role          | Tailscale Command   |
+| ----------- | ------------- | ------------------- |
+|  manager-1  | Swarm manager |  sudo tailscale up  |
+|  worker-1   | Swarm worker  |  sudo tailscale up  |
+|  worker-2   | Swarm worker  |  sudo tailscale up  |
+```
+
+🔐 *When you run tailscale up:* 
+
+  - It opens a browser login link (if interactive), or you use an auth key if headless.
+  - You log in using the same Tailscale account (e.g., your Google/GitHub account).
+  - The host receives a Tailscale IP (e.g., 100.101.102.1).
+  - This IP is reachable from all other machines in the Tailscale network.
+
+🧪 **How to Verify All Hosts Are Connected** <br>
+   ✅ Run on any host:
+```ssh
+tailscale status
+```
+
+You’ll see a list like:
+```ssh
+100.101.102.1   manager-1   online
+100.101.102.2   worker-1    online
+100.101.102.3   worker-2    online
+```
+✅ All hosts are connected via Tailscale and can now ping each other securely.
+
+🔄 How Connectivity Works (Behind the Scenes) <br>
+Tailscale uses the WireGuard protocol to build peer-to-peer encrypted tunnels between devices. Even if: <br>
+  - Manager is on home Wi-Fi,
+  - Worker 1 is on AWS,
+  - Worker 2 is on a university network,
+
+➡️ Tailscale finds a way to securely tunnel between them using NAT traversal or fallback relay (DERP servers).
 
 ## Notes
 
