@@ -40,9 +40,19 @@ Here's a step-by-step guide to set up Tailscale for Docker Swarm across machines
 
 🧰 **What You’ll Achieve**
 
-✅ Connect 3 machines over a virtual private network
-✅ Enable Docker Swarm + overlay network to span across networks
-✅ Allow containers to communicate by name, securely
+✅ Connect 3 machines over a virtual private network <br>
+✅ Enable Docker Swarm + overlay network to span across networks  <br>
+✅ Allow containers to communicate by name, securely  <br>
+
+🖥️ **Machines Required**
+Example:
+```ssh
+| Role     | Hostname    | Location | Will Run           |
+| -------- | ----------- | -------- | ------------------ |
+| Manager  |  manager-1  | Home     | Swarm manager      |
+| Worker 1 |  worker-1   | Cloud    | Backend container  |
+| Worker 2 |  worker-2   | Office   | Database container |
+```
 
 ## Notes
 
