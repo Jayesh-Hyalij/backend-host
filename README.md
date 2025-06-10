@@ -44,7 +44,7 @@ Here's a step-by-step guide to set up Tailscale for Docker Swarm across machines
 ✅ Enable Docker Swarm + overlay network to span across networks  <br>
 ✅ Allow containers to communicate by name, securely  <br>
 
-🖥️ **Machines Required**
+🖥️ **Machines Required**  <br>
 Example:
 ```ssh
 | Role     | Hostname    | Location | Will Run           |
@@ -53,6 +53,104 @@ Example:
 | Worker 1 |  worker-1   | Cloud    | Backend container  |
 | Worker 2 |  worker-2   | Office   | Database container |
 ```
+
+🚀 **Step-by-Step Tailscale + Docker Swarm Setup**
+
+✅ *Step 1: Install Tailscale on All Machines*  <br>
+
+🔧 Linux (Ubuntu/Debian)
+```ssh
+curl -fsSL https://tailscale.com/install.sh | sh
+sudo tailscale up
+```
+On first run, it will open a browser for login. Login with Google, GitHub, etc.  <br>
+
+✅ *Step 2: Verify All Hosts Are Connected*
+After login, you’ll see output like:  <br>
+```ssh
+Logged in as you@example.com.
+100.101.102.1   manager-1
+100.101.102.2   worker-1
+100.101.102.3   worker-2
+```
+✅ These are Tailscale IPs (in the 100.x.x.x range). <br>
+
+Test:  <br>
+```ssh
+ping 100.101.102.2   # from manager
+```
+If ping works, you’re securely connected ✅
+
+✅ *Step 3: Initialize Docker Swarm on the Manager Node* <br>
+Use Tailscale IP to advertise the manager:  
+```ssh
+docker swarm init --advertise-addr 100.101.102.1
+```
+
+Copy the join token from the output, e.g.:
+```ssh
+docker swarm join --token SWMTKN-1-abc123 ... 100.101.102.1:2377
+```
+
+✅ *Step 4: Join Worker Nodes to the Swarm*
+
+On each worker node, run the token command:
+```ssh
+docker swarm join --token <token-from-above> 100.101.102.1:2377
+```
+
+To verify: <br>
+```ssh
+docker node ls     # On the manager
+```
+You should see all 3 nodes listed.
+
+✅ *Step 5: Create an Overlay Network for Containers*
+
+On the manager:
+```ssh
+docker network create --driver overlay --attachable my_overlay
+```
+
+✅ *Step 6: Deploy Containers Across Nodes*  <br>
+Example:
+```ssh
+docker service create \
+  --name frontend \
+  --network my_overlay \
+  --replicas 1 \
+  --constraint 'node.hostname == manager-1' \
+  nginx
+
+docker service create \
+  --name backend \
+  --network my_overlay \
+  --replicas 1 \
+  --constraint 'node.hostname == worker-1' \
+  my-backend-image
+
+docker service create \
+  --name db \
+  --network my_overlay \
+  --replicas 1 \
+  --constraint 'node.hostname == worker-2' \
+  mysql
+```
+➡️ All 3 services will now communicate securely using service names (frontend, backend, db).
+
+📦 **Example: Container-to-Container Communication**  <br>
+
+Inside the backend container:
+```ssh
+ping db
+curl db:3306
+```
+
+Inside the frontend container:
+```ssh
+curl backend:5000
+```
+Docker Swarm + Tailscale handles the cross-host routing!
 
 ## Notes
 
