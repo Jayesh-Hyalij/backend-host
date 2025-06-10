@@ -36,7 +36,9 @@ Each engineer runs their respective container on their machine. The containers c
 
 ---
 
-Here's a step-by-step guide to set up Tailscale for Docker Swarm across machines on different networks (e.g., home, cloud, office) to enable secure container-to-container communication.
+🚀 **Step-by-Step Tailscale + Docker Swarm Setup** <br>
+
+Here's a step-by-step guide to set up Tailscale for Docker Swarm across machines on different networks (e.g., home, cloud, office) to enable secure container-to-container communication. <br>
 
 🧰 **What You’ll Achieve**
 
@@ -53,6 +55,7 @@ Example:
 | Worker 1 |  worker-1   | Cloud    | Backend container  |
 | Worker 2 |  worker-2   | Office   | Database container |
 ```
+
 
 🚀 **Step-by-Step Tailscale + Docker Swarm Setup**
 
@@ -151,6 +154,19 @@ Inside the frontend container:
 curl backend:5000
 ```
 Docker Swarm + Tailscale handles the cross-host routing!
+
+🧠 **Bonus Tips**
+
+```ssh
+| Task               | Command                                                                 |
+| ------------------ | ----------------------------------------------------------------------- |
+| View Tailscale IP  | `tailscale ip -4`                                                       |
+| View all nodes     | `tailscale status`                                                      |
+| Auto-start on boot | `sudo tailscale up --authkey <key>` *(use auth key for headless setup)* |
+| Revoke devices     | [tailscale.com/admin](https://tailscale.com/admin)                      |
+```
+
+<hr>
 
 ## Notes
 
