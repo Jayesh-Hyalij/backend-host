@@ -36,6 +36,13 @@ Each engineer runs their respective container on their machine. The containers c
 
 ---
 
+Here's a step-by-step guide to set up Tailscale for Docker Swarm across machines on different networks (e.g., home, cloud, office) to enable secure container-to-container communication.
+
+🧰 **What You’ll Achieve**
+✅ Connect 3 machines over a virtual private network
+✅ Enable Docker Swarm + overlay network to span across networks
+✅ Allow containers to communicate by name, securely
+
 ## Notes
 
 - Each container is developed, built, and run independently by different engineers on separate machines.
