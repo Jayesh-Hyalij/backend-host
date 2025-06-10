@@ -212,6 +212,8 @@ Tailscale uses the WireGuard protocol to build peer-to-peer encrypted tunnels be
 
 ➡️ Tailscale finds a way to securely tunnel between them using NAT traversal or fallback relay (DERP servers).
 
+<br>
+
 ## Notes
 
 - Each container is developed, built, and run independently by different engineers on separate machines.
